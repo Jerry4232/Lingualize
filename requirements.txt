@@ -1,0 +1,6 @@
+requests
+pydub
+openai
+assemblyai
+elevenlabs
+python-dotenv
