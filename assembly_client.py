@@ -1,3 +1,11 @@
+#assembly_client.py
+"""_summary_
+        This module provides real-time audio transcription capabilities using the AssemblyAI API. It defines the 
+AssemblyClient class, which initializes and manages a real-time transcriber instance, enabling continuous 
+conversion of spoken audio into text. Designed with callbacks for handling data and errors, this module 
+offers an efficient setup for real-time transcription applications.
+"""
+
 import assemblyai as aai
 
 
