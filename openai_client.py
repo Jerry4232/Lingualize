@@ -28,7 +28,7 @@ class OpenaiClient:
         )
         text = reply.choices[0].message.content
 
-        wrapped_text = textwrap.fill(text, width = 50)
+        wrapped_text = textwrap.fill(text, width = 100)
         print(wrapped_text)
 
         return text
