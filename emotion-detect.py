@@ -25,8 +25,13 @@ nlu = NaturalLanguageUnderstandingV1(
 )
 nlu.set_service_url(NLU_URL)
 
-def record_audio(filename, timeout=1, silence_threshold=800):
-    """Record audio until silence is detected"""
+import pyaudio
+import wave
+import time
+import audioop
+
+def record_audio(filename, timeout=1, silence_threshold=800, max_silence_duration=6):
+    """Record audio until silence is detected or max silence duration is reached"""
     chunk = 1024
     sample_format = pyaudio.paInt16
     channels = 1
@@ -38,16 +43,25 @@ def record_audio(filename, timeout=1, silence_threshold=800):
     print("Recording...")
     frames = []
     last_sound_time = time.time()
+    total_silence_time = 0  # Track cumulative silence duration
 
     while True:
         data = stream.read(chunk)
         frames.append(data)
         
-        # Detect silence
+        # Detect silence by calculating the RMS (Root Mean Square) of the audio chunk
         rms = audioop.rms(data, 2)
+        
         if rms > silence_threshold:
+            # Sound detected, reset silence tracking variables
             last_sound_time = time.time()
-        elif time.time() - last_sound_time > timeout:
+            total_silence_time = 0  # Reset cumulative silence time when sound is detected
+        else:
+            # Accumulate total silence time
+            total_silence_time = time.time() - last_sound_time
+
+        # Stop recording if silence exceeds either timeout or max_silence_duration
+        if total_silence_time >= max_silence_duration or total_silence_time > timeout:
             break
 
     print("Recording finished.")
@@ -60,6 +74,7 @@ def record_audio(filename, timeout=1, silence_threshold=800):
         wf.setsampwidth(p.get_sample_size(sample_format))
         wf.setframerate(rate)
         wf.writeframes(b''.join(frames))
+
 
 def transcribe_audio(filename):
     """Convert recorded audio to text"""
@@ -94,7 +109,8 @@ def analyze_emotion(text):
     }
     return json.dumps(result, indent=4)
 
-def main():
+def testing_main():
+    """This method is for testing only. """
     # Step 1: Record audio until silence is detected
     audio_filename = "user_input.wav"
     record_audio(audio_filename, timeout=1, silence_threshold=800)
@@ -123,5 +139,50 @@ def main():
         }
         print(json.dumps(result, indent=4))
 
-# if __name__ == "__main__":
-#     main()
+
+
+def main():
+    """this method will interact with front-end, sending the transcribe text and emotion analysis result."""
+    # Step 1: Record audio until silence is detected
+    audio_filename = "user_input.wav"
+    record_audio(audio_filename, timeout=1, silence_threshold=800)
+
+    # Step 2: Convert audio to text
+    text = transcribe_audio(audio_filename)
+    
+    if text:
+        # Step 3: Check the word count of the text
+        words = text.split()
+        if len(words) <= 4:
+            result = {
+                "error": "The sentence is too short for analysis",
+                "text": text,
+                "emotion": None
+            }
+        else:
+            # Perform emotion analysis and ensure it’s a dictionary
+            emotion_result = analyze_emotion(text)
+            
+            # Convert to a dictionary if it's a JSON string
+            if isinstance(emotion_result, str):
+                emotion_result = json.loads(emotion_result)
+            
+            result = {
+                "text": text,
+                "emotion": emotion_result
+            }
+    else:
+        result = {
+            "error": "No valid text recognized",
+            "text": None,
+            "emotion": None
+        }
+    
+    # Return the result in JSON format
+    return json.dumps(result, indent=4)
+
+
+if __name__ == "__main__":
+    a = main()
+    print(a)
+    
