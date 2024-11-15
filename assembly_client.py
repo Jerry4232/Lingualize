@@ -49,8 +49,8 @@ class AssemblyClient:
         if not transcript.text:
             return
         if isinstance(transcript, aai.RealtimeFinalTranscript):
-            self.transcript_queue.put(transcript.text + '')
             print("User:", transcript.text, end = "\r\n")
+            self.transcript_queue.put(transcript.text + '')
             self.current_text = transcript.text
 
     def get_text(self):

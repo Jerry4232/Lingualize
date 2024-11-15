@@ -1,12 +1,14 @@
-import assemblyai as aai
+import threading
 from queue import Queue, Empty
+
+import assemblyai as aai
 
 from assembly_client import AssemblyClient
 # Import keys securely
 from config import OpenAI_API_KEY, ASSEMBLY_API_KEY, ELEVENLABS_API_KEY
 from elevenlab_client import ElevenlabClient
 from openai_client import OpenaiClient
-
+from grammar_edit import SamplingClient
 
 elevenlabs_voice_id = "9BWtsMINqrJLrRacOk9x"
 
@@ -26,6 +28,8 @@ def main():
     assembly_tool = AssemblyClient(ASSEMBLY_API_KEY, transcript_queue)
     open_ai_tool = OpenaiClient(OpenAI_API_KEY)
     elevenlabs_tool = ElevenlabClient(ELEVENLABS_API_KEY)
+    # TODO: add api key?
+    sampling_tool = SamplingClient()
     transcriber = assembly_tool.get_transcriber()
 
     try:
@@ -50,10 +54,29 @@ def main():
 
                 # Combine all text items into a single string
                 transcript_result = " ".join(all_text)
-                text = open_ai_tool.generate_and_play_response(transcript_result)
+                del all_text
+                # print(f"User: {transcript_result}")
+
+                open_ai_thread = threading.Thread(
+                    target = open_ai_tool.generate_and_play_response, args = (transcript_result,))
+                sampling_thread = threading.Thread(
+                    target = sampling_tool.grammar_check, args = (transcript_result,))
+
+                open_ai_thread.start()
+                sampling_thread.start()
+
+                open_ai_thread.join()  # Waits for open_ai_thread to finish
+                sampling_thread.join()  # Waits for sampling_thread to finish
+
+                # get the result and empty the class attribute - respond from gpt
+                text = open_ai_tool.get_text_result()
+                edit, new_text = sampling_tool.get_result()
+
                 # Convert the response to audio
                 elevenlabs_tool.voice_generate(1024, elevenlabs_voice_id, text)
                 print("\nAI:", text)
+                print("Sampling tool:", new_text)
+                print()
             except Empty:
                 continue
 

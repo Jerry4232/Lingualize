@@ -4,8 +4,10 @@ import json
 # print to interface for testing purpose, finally return a json file. 
 # please reference to https://learn.microsoft.com/en-us/azure/ai-services/speech-service/how-to-pronunciation-assessment?pivots=programming-language-python
 
+from config import speech_key
 
 reference_text = "Hello, could you give me some feedback?" # could be empty
+service_region = "westus"
 
 def pronunciation_assessment_configured_with_json(filename, reference_text):
     """Performs pronunciation assessment asynchronously with input from an audio file.
@@ -39,6 +41,9 @@ def pronunciation_assessment_configured_with_json(filename, reference_text):
     pronunciation_config.apply_to(speech_recognizer)
 
     result = speech_recognizer.recognize_once_async().get()
+
+    # initialize res
+    pronunciation_result = dict()
 
     # Check the result
     if result.reason == speechsdk.ResultReason.RecognizedSpeech:

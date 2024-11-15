@@ -4,7 +4,7 @@ from openai_client import OpenaiClient
 from grammar_edit import grammar_check
 from elevenlab_client import ElevenlabClient
 
-
+from config import OpenAI_API_KEY, ELEVENLABS_API_KEY
 open_ai_tool = OpenaiClient(OpenAI_API_KEY)
 elevenlabs_tool = ElevenlabClient(ELEVENLABS_API_KEY)
 elevenlabs_voice_id = "9BWtsMINqrJLrRacOk9x"

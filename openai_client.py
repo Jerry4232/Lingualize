@@ -5,6 +5,7 @@ import textwrap
 class OpenaiClient:
     def __init__(self, OpenAI_API_KEY):
         self.client = OpenAI(api_key = OpenAI_API_KEY)
+        self.text_result = ""
 
     def generate_and_play_response(self, transcript_result):
         """
@@ -30,5 +31,11 @@ class OpenaiClient:
 
         wrapped_text = textwrap.fill(text, width = 100)
         print(wrapped_text)
+        self.text_result = text
 
         return text
+
+    def get_text_result(self):
+        result = self.text_result
+        self.text_result = ""
+        return result
