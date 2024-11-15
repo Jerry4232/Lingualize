@@ -3,7 +3,6 @@
         This module provides functionality to analyze sentence complexity using the Sapling AI API.
 """
 import requests
-from pprint import pprint
 
 STATISTICS_URL = "https://api.sapling.ai/api/v1/statistics"
 
@@ -19,7 +18,7 @@ def sentence_complexity_analysis(URL, key, text, timeout=10):
             },
             timeout=timeout
         )
-        pprint(response.json())
+        # pprint(response.json())
         return response
     except requests.exceptions.Timeout:
         print("The request timed out")

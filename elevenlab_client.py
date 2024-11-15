@@ -59,7 +59,7 @@ class ElevenlabClient:
 
             # Play the generated audio
             play(audio)
-            print("Audio played successfully.")
+            # print("Audio played successfully.")
         else:
             # Print the error message if the request was not successful
             print(f"Error generating audio: {response.text}")

@@ -5,7 +5,7 @@ import textwrap
 class OpenaiClient:
     def __init__(self, OpenAI_API_KEY):
         self.client = OpenAI(api_key = OpenAI_API_KEY)
-        self.text_result = ""
+        self.text_result = "OpenAI"
 
     def generate_and_play_response(self, transcript_result):
         """
@@ -18,7 +18,7 @@ class OpenaiClient:
             None
         """
 
-        print("GPT Connected")
+        # print("GPT Connected")
         reply = self.client.chat.completions.create(
             model = "gpt-3.5-turbo",
             messages = [
@@ -29,8 +29,8 @@ class OpenaiClient:
         )
         text = reply.choices[0].message.content
 
-        wrapped_text = textwrap.fill(text, width = 100)
-        print(wrapped_text)
+        # wrapped_text = textwrap.fill(text, width = 100)
+        # print(wrapped_text)
         self.text_result = text
 
         return text

@@ -5,8 +5,6 @@ send converted text(string) to sampling and receive json formatted edit
 """
 
 import requests
-from pprint import pprint
-
 # these are public testing APIs, safe to push to github.
 
 class SamplingClient:
@@ -102,9 +100,10 @@ class SamplingClient:
         data = self.format_data(text, "test session")
         edits = self.advanced_check(data)
         #
-        new_text = ""
         if edits:
             new_text = self.fix_grammar_error(text, edits)
+        else:
+            new_text = text
 
         # temporary stored in attributes
         self.edit_result = edits
