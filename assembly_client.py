@@ -5,8 +5,12 @@ AssemblyClient class, which initializes and manages a real-time transcriber inst
 conversion of spoken audio into text. Designed with callbacks for handling data and errors, this module 
 offers an efficient setup for real-time transcription applications.
 """
+from operator import rshift
+from queue import Queue, Empty
 
 import assemblyai as aai
+from assemblyai import RealtimeTranscriber
+from config import ASSEMBLY_API_KEY
 
 
 def on_error(error: aai.RealtimeError):
@@ -23,10 +27,11 @@ def on_error(error: aai.RealtimeError):
 
 
 class AssemblyClient:
-    def __init__(self, ASSEMBLY_API_KEY, transcript_queue):
+    def __init__(self):
         aai.settings.api_key = ASSEMBLY_API_KEY
-        self.transcript_queue = transcript_queue
+        self.transcript_list = list()
         self.current_text = ""
+        self.transcriber = self.get_transcriber()
 
     def get_transcriber(self):
         return aai.RealtimeTranscriber(
@@ -50,11 +55,43 @@ class AssemblyClient:
             return
         if isinstance(transcript, aai.RealtimeFinalTranscript):
             print("User:", transcript.text, end = "\r\n")
-            self.transcript_queue.put(transcript.text + '')
-            self.current_text = transcript.text
+            self.transcript_list.append(transcript.text)
+
+    def record_transcript_text(self):
+        self.transcript_queue = Queue()
+        try:
+            self.transcriber.connect()
+            print("Successfully Connected!")
+            while True:
+                try:
+                    microphone_stream = aai.extras.MicrophoneStream()
+                    print("Press Ctrl+C to stop recording.")
+                    self.transcriber.stream(microphone_stream)
+                    print("output get!")
+                    break
+                except Empty:
+                    continue
+        except KeyboardInterrupt:
+            print("Conversation ended by user.")
+        except Exception as e:
+            print(f"An error occurred: {e}")
+        finally:
+            if isinstance(self.transcriber, RealtimeTranscriber):
+                self.transcriber.close()
+                # Combine all text items into a single string
+                # print("Transcriber connection closed.")
+            transcript_result = " ".join(self.transcript_list)
+            return transcript_result
+
 
     def get_text(self):
-        return self.current_text
+        result = self.current_text
+        self.current_text = ""
+        self.transcript_list = list()
+        return result
 
 
-
+if __name__ == '__main__':
+    ac = AssemblyClient()
+    res = ac.record_transcript_text()
+    print(f"You recorded: {res}")

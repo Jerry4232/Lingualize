@@ -5,10 +5,11 @@ from queue import Queue
 
 # Import keys securely
 from config import OpenAI_API_KEY, ELEVENLABS_API_KEY
+# from assembly_client import AssemblyClient
 from elevenlab_client import ElevenlabClient
 from openai_client import OpenaiClient
 from grammar_edit import SamplingClient
-from emotion_detect import record_audio, transcribe_audio, format_emotion_data
+from emotion_detect import IBMRecorder
 from pronunciation_assessment import SpeechSDKClient
 
 elevenlabs_voice_id = "9BWtsMINqrJLrRacOk9x"
@@ -29,23 +30,28 @@ def main():
     """
 
     # Set API keys
-    transcript_queue = Queue()
+    # Not Implemented assembly
+    # assembly_ai_tool = AssemblyClient()
     open_ai_tool = OpenaiClient(OpenAI_API_KEY)
     elevenlabs_tool = ElevenlabClient(ELEVENLABS_API_KEY)
     sampling_tool = SamplingClient()
     sdk_tool = SpeechSDKClient()
+    ibm_tool = IBMRecorder()
 
     try:
-        record_audio(audio_filename, timeout = 1, silence_threshold = 800)
-        transcript_result = transcribe_audio(audio_filename)
-        print(f"User: {transcript_result}")
-        print()
-        print(f"User Emotion: {format_emotion_data(transcript_result)}")
-        print()
+        ibm_tool.record_audio(audio_filename, timeout = 1, silence_threshold = 800)
+        # Not Implemented assembly
+        # assembly_ai_tool.record_transcript_text()
     except KeyboardInterrupt:
         print("Conversation ended by user.")
     except Exception as e:
         print(f"An error occurred: {e}")
+    # print(f"Assembly: {assembly_ai_tool.get_text()}")
+    transcript_result = ibm_tool.transcribe_audio(audio_filename)
+    print(f"User: {transcript_result}")
+    print()
+    print(f"User Emotion: {ibm_tool.format_emotion_data(transcript_result)}")
+    print()
 
     def display_spinner():
         """A thread that displays a spinner animation until stopped."""
@@ -61,6 +67,7 @@ def main():
     )
     open_ai_thread = threading.Thread(
         target = open_ai_tool.generate_and_play_response, args = (transcript_result,))
+    # this requires the .wav voice recording
     sdk_thread = threading.Thread(
         target=sdk_tool.get_accuracy_score, args = (audio_filename, reference_text))
     sampling_thread = threading.Thread(
