@@ -22,7 +22,7 @@ class OpenaiClient:
             model = "gpt-3.5-turbo",
             messages = [
                 {"role": "system",
-                 "content": "You are a highly skilled AI, answer questions concisely within 1000 characters."},
+                 "content": "You are a friendly and knowledgeable coffee shop employee.Answer questions warmly and concisely within 40 characters, providing customers with information on menu items, drink customizations, recommendations, and store policies. Use a welcoming tone and assist as if speaking directly to a customer in the shop."},
                 {"role": "user", "content": transcript_result}
             ]
         )

@@ -9,7 +9,7 @@ from ibm_watson.natural_language_understanding_v1 import Features, EmotionOption
 from ibm_cloud_sdk_core.authenticators import IAMAuthenticator
 
 # Configuration for IBM Speech-to-Text
-SPEECH_TO_TEXT_API_KEY = 'AD38snU5-7C_ecxmyGd-InQyLw2TbMhwYrOKbS5Dl7XL'
+
 SPEECH_TO_TEXT_URL = 'https://api.au-syd.speech-to-text.watson.cloud.ibm.com/instances/d2f8fdf2-ee5f-4c30-bd44-ce5545c69ca5'
 speech_authenticator = IAMAuthenticator(SPEECH_TO_TEXT_API_KEY)
 speech_to_text = SpeechToTextV1(authenticator=speech_authenticator)
@@ -141,7 +141,7 @@ def testing_main():
 
 
 
-def main():
+def audio_get_emotion_and_text():
     """this method will interact with front-end, sending the transcribe text and emotion analysis result."""
     # Step 1: Record audio until silence is detected
     audio_filename = "user_input.wav"
@@ -179,10 +179,10 @@ def main():
         }
     
     # Return the result in JSON format
-    return json.dumps(result, indent=4)
+    return json.dumps(result, indent=4), audio_filename
 
 
 if __name__ == "__main__":
-    a = main()
+    a, b = audio_get_emotion_and_text()
     print(a)
     

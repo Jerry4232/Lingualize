@@ -81,6 +81,14 @@ def fix_grammar_error(text, edits):
         text = text[: start] + edit['replacement'] + text[end:]
     return text
 
+
+def grammar_check(text):
+    data = format_data(key, text, "test session")
+    edits = advanced_check(data)
+    if edits:
+        new_text = fix_grammar_error(text, edits)
+    return edits, new_text
+
 if __name__ == "__main__":
     text: str = "I have went to the store yesterday but forgot buying milk, "\
             "it was a really tiring day and I dont think I will go there again so soon."

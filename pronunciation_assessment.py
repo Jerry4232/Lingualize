@@ -5,8 +5,9 @@ import json
 # please reference to https://learn.microsoft.com/en-us/azure/ai-services/speech-service/how-to-pronunciation-assessment?pivots=programming-language-python
 
 
+reference_text = "Hello, could you give me some feedback?" # could be empty
 
-def pronunciation_assessment_configured_with_json(filename):
+def pronunciation_assessment_configured_with_json(filename, reference_text):
     """Performs pronunciation assessment asynchronously with input from an audio file.
         See more information at https://aka.ms/csspeech/pa"""
 
@@ -15,8 +16,6 @@ def pronunciation_assessment_configured_with_json(filename):
     # Note: The sample is for en-US language.
     speech_config = speechsdk.SpeechConfig(subscription=speech_key, region=service_region)
     audio_config = speechsdk.audio.AudioConfig(filename=filename)
-
-    reference_text = "Hello, could you give me some feedback?"
     # Create pronunciation assessment config with json string (JSON format is not recommended)
     enable_miscue, enable_prosody = True, True
     config_json = {
@@ -54,7 +53,9 @@ def pronunciation_assessment_configured_with_json(filename):
         if cancellation_details.reason == speechsdk.CancellationReason.Error:
             print("Error details: {}".format(cancellation_details.error_details))
             
+    return json.dumps(pronunciation_result, indent=4)
+            
 
 
 filename = "user_input.wav"
-pronunciation_assessment_configured_with_json(filename)
+pronunciation_assessment_configured_with_json(filename, "")
